@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Typing Test</title>
+   <style>
+    body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 600px;
+    max-width: 90%;
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.quote-display {
+    background-color: #e9e9e9;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: left;
+    line-height: 1.6;
+    font-size: 1.2em;
+}
+
+.quote-display span.correct {
+    color: green;
+}
+
+.quote-display span.incorrect {
+    color: red;
+    text-decoration: underline;
+}
+
+.quote-input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    font-size: 1.1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+    margin-bottom: 15px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.results {
+    margin-top: 20px;
+    font-size: 1.1em;
+}
+
+.results p {
+    margin: 5px 0;
+}
+
+.results span {
+    font-weight: bold;
+    color: #007bff;
+}
+   </style>
+<body>
+    <div class="container">
+        <h1>Typing Speed Test</h1>
+        <div id="quote-display" class="quote-display"></div>
+        <textarea id="quote-input" class="quote-input" placeholder="Start typing here..." autofocus></textarea>
+        <button id="start-button">Start Test</button>
+        <div id="results" class="results">
+            <p>WPM: <span id="wpm">0</span></p>
+            <p>Accuracy: <span id="accuracy">0%</span></p>
+        </div>
+    </div>
+    <script>
+        const quoteDisplayElement = document.getElementById('quote-display');
+const quoteInputElement = document.getElementById('quote-input');
+const startButton = document.getElementById('start-button');
+const wpmSpan = document.getElementById('wpm');
+const accuracySpan = document.getElementById('accuracy');
+
+const quotes = [
+    "The quick brown fox jumps over the lazy dog.",
+    "Never underestimate the power of a good book.",
+    "Practice makes perfect, especially with typing.",
+    "The early bird catches the worm.",
+    "Coding is a blend of art and science."
+];
+
+let currentQuote = '';
+let startTime;
+let timerInterval;
+
+function getRandomQuote() {
+    return quotes[Math.floor(Math.random() * quotes.length)];
+}
+
+function startTest() {
+    startButton.textContent = 'Reset';
+    quoteInputElement.value = '';
+    quoteInputElement.disabled = false;
+    quoteInputElement.focus();
+    wpmSpan.textContent = '0';
+    accuracySpan.textContent = '0%';
+
+    currentQuote = getRandomQuote();
+    quoteDisplayElement.innerHTML = '';
+    currentQuote.split('').forEach(char => {
+        const charSpan = document.createElement('span');
+        charSpan.textContent = char;
+        quoteDisplayElement.appendChild(charSpan);
+    });
+
+    startTime = new Date();
+    clearInterval(timerInterval); // Clear any existing timer
+}
+
+function calculateResults() {
+    const endTime = new Date();
+    const timeTakenSeconds = (endTime - startTime) / 1000;
+    const typedText = quoteInputElement.value;
+    const correctCharacters = Array.from(quoteDisplayElement.children).filter((span, index) => {
+        return span.textContent === typedText[index];
+    }).length;
+
+    const wordsTyped = typedText.split(/\s+/).filter(word => word.length > 0).length;
+    const wpm = Math.round((wordsTyped / timeTakenSeconds) * 60);
+
+    const accuracy = typedText.length > 0 ? Math.round((correctCharacters / typedText.length) * 100) : 0;
+
+    wpmSpan.textContent = wpm;
+    accuracySpan.textContent = `${accuracy}%`;
+}
+
+quoteInputElement.addEventListener('input', () => {
+    const arrayQuote = quoteDisplayElement.querySelectorAll('span');
+    const arrayValue = quoteInputElement.value.split('');
+
+    let correct = true;
+    arrayQuote.forEach((charSpan, index) => {
+        const character = arrayValue[index];
+
+        if (character == null) {
+            charSpan.classList.remove('correct');
+            charSpan.classList.remove('incorrect');
+            correct = false;
+        } else if (character === charSpan.textContent) {
+            charSpan.classList.add('correct');
+            charSpan.classList.remove('incorrect');
+        } else {
+            charSpan.classList.remove('correct');
+            charSpan.classList.add('incorrect');
+            correct = false;
+        }
+    });
+
+    if (correct && arrayValue.length === arrayQuote.length) {
+        calculateResults();
+        quoteInputElement.disabled = true;
+        startButton.textContent = 'Start New Test';
+    }
+});
+
+startButton.addEventListener('click', startTest);
+
+// Initial setup
+startTest();
+    </script>
+</body>
+</html>
